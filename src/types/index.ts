@@ -44,8 +44,7 @@ export interface ICardProduct {
 	description: string; // описание товара
 	title: string; // название товара
 	price: number | null; // цена
-	itemCount: number;
-   status: 'active' | 'closed';
+    status: 'active' | 'closed';
 }
 
 export type TErrorsOrder = Partial<Record<keyof IOrder, string>>; // тип описывающий ошибки интерфейса IOrder

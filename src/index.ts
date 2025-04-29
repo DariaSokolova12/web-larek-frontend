@@ -146,38 +146,28 @@ events.on('card:select', (item: ICardProduct) => {
 
 // Открыть корзину
 events.on('basket:open', () => {
-	basket.items = appData.getBasket().map((item, index) => {
-		const card = new Card(cloneTemplate(cardBasketTemplate), {
-			onClick: () => {
-				events.emit('item:toggle', item);
-			},
-		});
-		const cardIndex = index + 1;
-		card.index = cardIndex.toString();
-		return card.render({
-			title: item.title,
-			price: item.price,
-		});
-	});
-	page.counter = appData.getBasket().length;
+	// Просто открываем корзину без пересоздания списка товаров
 	basket.total = appData.getTotal();
 	basket.selected = appData.getBasket();
-	appData.order.total = appData.getTotal();
 	openModalWithContent(basket.render());
 });
 
-// Очистка корзины
+// Обработчик изменения состояния товара в корзине
 events.on('item:toggle', (item: ICardProduct) => {
-	appData.toggleBasket(item);
+	appData.toggleBasket(item); // Тоглим состояние товара в корзине
 	const basketItems = appData.getBasket();
 	page.counter = basketItems.length;
+	// Сразу после изменения корзины вызываем событие basket:changed
+	events.emit('basket:changed', basketItems);
 });
 
+// Обработчик события basket:changed
 events.on('basket:changed', (items: ICardProduct[]) => {
+	// Рендерим корзину с обновленным списком товаров
 	basket.items = items.map((item, index) => {
 		const card = new Card(cloneTemplate(cardBasketTemplate), {
 			onClick: () => {
-				events.emit('item:toggle', item);
+				events.emit('item:toggle', item); // Тоглим состояние товара в корзине
 			},
 		});
 		const cardIndex = index + 1;
@@ -185,10 +175,15 @@ events.on('basket:changed', (items: ICardProduct[]) => {
 		return card.render({
 			title: item.title,
 			price: item.price,
-		});	
+		});
 	});
-	appData.order.total = appData.getTotal();
+
+	// Обновляем сумму и выбранные товары в корзине
 	basket.total = appData.getTotal();
+	basket.selected = items;
+
+	// Рендерим корзину
+	openModalWithContent(basket.render());
 });
 
 // Способ оплаты
@@ -228,5 +223,3 @@ api.getProductList()
 	.catch((err) => {
 		console.error(err);
 	});
-
-
