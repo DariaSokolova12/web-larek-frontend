@@ -203,7 +203,7 @@ events.on('order:submit', () => {
 		valid: false,
 		errors: [],
 	}));
-	const items = appData.basketItem.map(item => item.id);
+	const items = appData.basket.map(item => item.id);
 	appData.order.items = items;
 });
 
